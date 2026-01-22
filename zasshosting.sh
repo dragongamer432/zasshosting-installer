@@ -13,7 +13,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # ASCII Banner
-echo -e "${GREEN}                                                  "
+echo -e "${RED}                                                    "
 echo -e " ______                 _   _           _   _             "
 echo -e "|___  /                | | | |         | | (_)            "
 echo -e "  / /   __ _ ___ ___   | |_| | ___  ___| |_ _ _ __   __ _ "
@@ -25,8 +25,24 @@ echo -e "                                                    |___/ "
 echo -e "                  By Dragon, Zerioak${NC}"
 echo -e "==========================================================" 
 
-# Menu
-echo -e "${YELLOW}1) Install Pterodactyl Panel"
+# ===============================
+# DEPENDENCY CHECKS
+# ===============================
+echo -e "${YELLOW}Checking required dependencies...${NC}"
+dependencies=(curl git php php-cli php-mbstring php-bcmath php-xml php-curl php-zip composer unzip mysql)
+for dep in "${dependencies[@]}"; do
+    if ! command -v $dep &> /dev/null; then
+        echo -e "${RED}Dependency $dep is missing. Installing...${NC}"
+        apt update -y && apt install -y $dep
+    fi
+done
+echo -e "${GREEN}All dependencies are installed!${NC}"
+echo -e "==========================================================="
+
+# ===============================
+# MENU
+# ===============================
+echo -e "${WHITE}1) Install Pterodactyl Panel"
 echo "2) Install Wings"
 echo "3) Install Blueprint"
 echo "4) Update Pterodactyl Panel"
@@ -38,26 +54,33 @@ read -p "Choose an option [1-7]: " option
 
 case $option in
     1)
-        echo -e "${GREEN}Installing Pterodactyl Panel...${NC}"
-        curl -sSL https://get.pterodactyl.io/panel.sh | bash
+        echo -e "${GREEN}Starting Pterodactyl Installation...${NC}"
+        bash <(curl -s https://pterodactyl-installer.se)
         echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
         read
         ;;
     2)
         echo -e "${GREEN}Installing Wings...${NC}"
-        curl -sSL https://get.pterodactyl.io/wings.sh | bash
+        curl -Lo wings.sh https://get.pterodactyl.io/wings.sh
+        chmod +x wings.sh
+        bash wings.sh
+        rm -f wings.sh
         echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
         read
         ;;
     3)
         echo -e "${GREEN}Installing Blueprint...${NC}"
-        bash blueprint-install.sh
-        echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
+        if [[ -f blueprint-install.sh ]]; then
+            bash blueprint-install.sh
+            echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
+        else
+            echo -e "${RED}blueprint-install.sh not found!${NC}"
+        fi
         read
         ;;
     4)
         echo -e "${GREEN}Updating Pterodactyl Panel...${NC}"
-        cd /var/www/pterodactyl || { echo "Panel folder not found!"; exit 1; }
+        cd /var/www/pterodactyl || { echo -e "${RED}Panel folder not found!${NC}"; exit 1; }
         git fetch --all
         git reset --hard origin/stable
         composer install --no-dev --optimize-autoloader
@@ -69,7 +92,7 @@ case $option in
         ;;
     5)
         echo -e "${GREEN}Degrading Pterodactyl Panel...${NC}"
-        cd /var/www/pterodactyl || { echo "Panel folder not found!"; exit 1; }
+        cd /var/www/pterodactyl || { echo -e "${RED}Panel folder not found!${NC}"; exit 1; }
         git reset --hard HEAD~1
         composer install --no-dev --optimize-autoloader
         php artisan migrate --force
@@ -85,8 +108,8 @@ case $option in
         read -p "Enter Pterodactyl database user: " dbuser
         read -p "Enter password for this user: " dbpass
 
-        mysql -u root -p"$rootpass" -e "CREATE DATABASE ${dbname};"
-        mysql -u root -p"$rootpass" -e "CREATE USER '${dbuser}'@'localhost' IDENTIFIED BY '${dbpass}';"
+        mysql -u root -p"$rootpass" -e "CREATE DATABASE IF NOT EXISTS ${dbname};"
+        mysql -u root -p"$rootpass" -e "CREATE USER IF NOT EXISTS '${dbuser}'@'localhost' IDENTIFIED BY '${dbpass}';"
         mysql -u root -p"$rootpass" -e "GRANT ALL PRIVILEGES ON ${dbname}.* TO '${dbuser}'@'localhost';"
         mysql -u root -p"$rootpass" -e "FLUSH PRIVILEGES;"
 
