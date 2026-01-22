@@ -39,7 +39,7 @@ read -p "Choose an option [1-7]: " option
 case $option in
     1)
         echo -e "${GREEN}Starting Pterodactyl Installation...${NC}"
-        curl -sSL https://raw.githubusercontent.com/Zerioak/pterodactyl-install/main/install.sh -o install.sh
+        bash <(curl -s https://raw.githubusercontent.com/dragongamer432/zerioak-pterodactyl/main/install.sh)
         echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
         read
         ;;
