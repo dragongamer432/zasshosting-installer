@@ -24,23 +24,9 @@ echo -e "                                                                       
 echo -e "                                By Dragon, Zerioak${NC}"                                     
 echo -e "============================================================================================" 
 # ===============================
-# DEPENDENCY CHECKS
-# ===============================
-echo -e "${YELLOW}Checking required dependencies...${NC}"
-dependencies=(curl git php php-cli php-mbstring php-bcmath php-xml php-curl php-zip composer unzip mysql)
-for dep in "${dependencies[@]}"; do
-    if ! command -v $dep &> /dev/null; then
-        echo -e "${RED}Dependency $dep is missing. Installing...${NC}"
-        apt update -y && apt install -y $dep
-    fi
-done
-echo -e "${GREEN}All dependencies are installed!${NC}"
-echo -e "==========================================================="
-
-# ===============================
 # MENU
 # ===============================
-echo -e "${WHITE}1) Install Pterodactyl Panel"
+echo -e "${RED}1) Install Pterodactyl Panel"
 echo "2) Install Wings"
 echo "3) Install Blueprint"
 echo "4) Update Pterodactyl Panel"
@@ -53,7 +39,7 @@ read -p "Choose an option [1-7]: " option
 case $option in
     1)
         echo -e "${GREEN}Starting Pterodactyl Installation...${NC}"
-        bash <(curl -s https://pterodactyl-installer.se)
+        bash <(curl -sSH https://raw.githubusercontent.com/Zerioak/pterodactyl-install/main/install.sh)
         echo -e "${GREEN}Completed, Press Enter to Continue!${NC}"
         read
         ;;
