@@ -45,7 +45,7 @@ case $option in
         ;;
     2)
         echo -e "${GREEN}Installing Wings...${NC}"
-        curl -Lo wings.sh https://get.pterodactyl.io/wings.sh
+        bash <(curl -s https://raw.githubusercontent.com/dragongamer432/wings-installer/main/install.sh)
         chmod +x wings.sh
         bash wings.sh
         rm -f wings.sh
